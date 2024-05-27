@@ -21,7 +21,7 @@ const FilterBtn = ({ action, active, filter }) => {
     onClick={action}
     className={
         `hover:text-white cursor-pointer transition-all duration-200 ease-in-out ` +
-        (active === filter ? "text-indigo-400" : "text-customOrange")
+        (active === filter ? "text-indigo-300" : "text-customOrange")
       }>
          {filter.charAt(0).toUpperCase() + filter.slice(1)}
     </button>
