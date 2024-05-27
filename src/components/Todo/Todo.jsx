@@ -2,6 +2,7 @@ import { MdDelete } from "react-icons/md";
 import { FaCheckCircle } from "react-icons/fa";
 
 const Todo = ({ todo, handleDelete, handleSetComplete }) => {
+
   const { id, title, completed } = todo;
 
   return (

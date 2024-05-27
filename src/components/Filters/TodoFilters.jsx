@@ -1,4 +1,3 @@
-
 // Dividimos los filtros en subcomponenes
 const FiltersContainer = ({ children }) => {
   return (
@@ -13,19 +12,19 @@ const ItemLeft = ({ total = 0 }) => {
 };
 
 const FilterBtnContainer = ({ children }) => {
-  return <div className='flex items-center space-x-2'>
-    { children }
-  </div>;
+  return <div className='flex items-center space-x-2'>{children}</div>;
 };
 
-const FilterBtn = ( { action, active, filter }) => {
-    return (
-        
-        <button className={`hover:text-white cursor-pointer transition-all duration-200 ease-in-out ` + (active.toLowerCase().includes(filter.toLowerCase()) ? 'text-indigo-400' : 'text-customOrange')}>
-        
-        {filter}
-
-        </button>
-    )
-}
-export { FiltersContainer, ItemLeft , FilterBtnContainer , FilterBtn };
+const FilterBtn = ({ action, active, filter }) => {
+  return (
+    <button
+    onClick={action}
+    className={
+        `hover:text-white cursor-pointer transition-all duration-200 ease-in-out ` +
+        (active === filter ? "text-indigo-400" : "text-customOrange")
+      }>
+         {filter.charAt(0).toUpperCase() + filter.slice(1)}
+    </button>
+  );
+};
+export { FiltersContainer, ItemLeft, FilterBtnContainer, FilterBtn };
