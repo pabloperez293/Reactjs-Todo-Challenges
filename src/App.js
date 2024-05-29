@@ -4,91 +4,120 @@ import { TodoInput } from "./components/TodoInput";
 import { TodoList } from "./components/TodoList/TodoList";
 
 function App() {
-  const [todos, setTodos] = useState([
-    {
-      id: 1,
-      title: " Ver Pelicula Marvel",
-      completed: false,
-    },
-    {
-      id: 2,
-      title: " Ver Pelicula DC",
-      completed: false,
-    },
-    {
-      id: 3,
-      title: " Ver Pelicula DB",
-      completed: false,
-    },
-    {
-      id: 4,
-      title: " Ver Pelicula One Piece",
-      completed: false,
-    },
-  ]);
-
+  const [todos, setTodos] = useState([]);
   // Filtros de funcionalidad
   const [activeFilter, setActiveFilter] = useState("all");
-  const [filteredTodos, setFilteredTodos] = useState(todos);
+  const [filteredTodos, setFilteredTodos] = useState([]);
 
-  // Funcionalidad basica
-  const addTodo = (title) => {
-    const lastId = todos.length > 0 ? todos[todos.length - 1].id : 1;
+  useEffect(() => {
+    fetchTodos();
+  }, []);
 
-    const newTodo = {
-      id: lastId + 1,
-      title,
-      completed: false,
-    };
-    const todoList = [...todos];
-    todoList.push(newTodo);
-    setTodos(todoList);
+  useEffect(() => {
+    if (activeFilter === "all") {
+      setFilteredTodos(todos);
+    } else if (activeFilter === 'active') {
+      const activeTodos = todos.filter((todo) => todo.completed === false);
+      setFilteredTodos(activeTodos);
+    } else if (activeFilter === "completed") {
+      const completedTodos = todos.filter((todo) => todo.completed === true);
+      setFilteredTodos(completedTodos);
+    }
+  }, [activeFilter, todos]);
+
+  // Funcionalidad de Api
+
+  const fetchTodos = async () => {
+    try {
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/todos?_limit=10"
+      );
+      const data = await response.json();
+      setTodos(data);
+      setFilteredTodos(data);
+    } catch (error) {
+      console.error("Error fetching todos:", error);
+    }
   };
 
-  const handleSetComplete = (id) => {
-    const updatedList = todos.map(todo => {
-      if (todo.id === id) {
-        return { ...todo, completed: !todo.completed };
-      }
-      return todo;
-    });
-    setTodos(updatedList);
+  const addTodo = async (title) => {
+    try {
+      const response = await fetch(
+        "https://jsonplaceholder.typicode.com/todos",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ title, completed: false }),
+        }
+      );
+      const newTodo = await response.json();
+      setTodos([
+        {
+          ...newTodo,
+          id: Date.now(),
+          title,
+          completed: false,
+        },
+        ...todos,
+      ]);
+    } catch (error) {
+      console.error("Error agregando todo:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    const updatedList = todos.filter(todo => todo.id !== id);
-    setTodos(updatedList);
+  const handleSetComplete = async (id) => {
+    const todo = todos.find((todo) => todo.id === id);
+    try {
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/todos/${id}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ completed: !todo.completed }),
+        }
+      );
+      const updatedTodo = await response.json();
+      setTodos(
+        todos.map((todo) =>
+          todo.id === id ? { ...todo, completed: !todo.completed } : todo
+        )
+      );
+    } catch (error) {
+      console.error("Error updating todo:", error);
+    }
   };
 
-  // filtrers
+  const handleDelete = async (id) => {
+    try {
+      await fetch(`https://pokeapi.co/api/v2/pokemon/ditto/${id}`, {
+        method: "DELETE",
+      });
+      setTodos(todos.filter((todo) => todo.id !== id));
+    } catch (error) {
+      console.error("Error deleting todo:", error);
+    }
+  };
+
   const handleClearCompleted = () => {
-    const updatedList = todos.filter(todo => !todo.completed);
+    const updatedList = todos.filter((todo) => !todo.completed);
     setTodos(updatedList);
   };
 
   const showAllTodos = () => {
-    setActiveFilter('all');
+    setActiveFilter("all");
   };
 
   const showActiveTodos = () => {
-    setActiveFilter('active');
+    setActiveFilter("active");
   };
 
   const showCompletedTodos = () => {
-    setActiveFilter('completed');
+    setActiveFilter("completed");
   };
-
-  useEffect(() => {
-    if (activeFilter === 'all') {
-      setFilteredTodos(todos);
-    } else if (activeFilter === 'Active') {
-      const activeTodos = todos.filter(todo => todo.completed === false);
-      setFilteredTodos(activeTodos);
-    } else if (activeFilter === 'completed') {
-      const completedTodos = todos.filter(todo => todo.completed === true);
-      setFilteredTodos(completedTodos);
-    }
-  }, [activeFilter, todos]);
 
   return (
     <div className='bg-gray-800 min-h-screen h-full font-intel text-gray-100 flex items-center justify-center py-20 px-5'>
